@@ -64,10 +64,6 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 
     //[CPMenu setMenuBarVisible:YES];
 
-
-    var request = [CPURLRequest requestWithURL:"https://api.mercadolibre.com/countries"];
-    var connection = [CPURLConnection connectionWithRequest:request delegate:self];
-
 }
 
 
@@ -89,6 +85,22 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 
     if (anItemIdentifier == SliderToolbarItemIdentifier)
     {
+        // The toolbar is using a custom view (of class CPSearchField)
+        var searchField = [[CPSearchField alloc] initWithFrame:CGRectMake(0, 10, 200, 30)];
+        [searchField setEditable:YES];
+        [searchField setPlaceholderString:@"search and hit enter"];
+        [searchField setBordered:YES];
+        [searchField setBezeled:YES];
+        [searchField setFont:[CPFont systemFontOfSize:12.0]];
+        [searchField setTarget:self];
+        [searchField setAction:@selector(searchChanged:)];
+        [searchField setSendsWholeSearchString:YES];
+        [searchField setSendsSearchStringImmediately:NO];
+
+        [toolbarItem setView:searchField];
+        [toolbarItem setLabel:"Search"];
+        [toolbarItem setMinSize:CGSizeMake(180, 32)];
+        [toolbarItem setMaxSize:CGSizeMake(180, 32)];
     }
     else if (anItemIdentifier == SaleToolbarItemIdentifier)
     {
@@ -109,6 +121,15 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 
     return toolbarItem;
 }
+
+- (void)searchChanged:(id)senderObject
+{
+    CPLog.info([senderObject stringValue]);
+
+    var request = [CPURLRequest requestWithURL:"https://api.mercadolibre.com/sites/MLA/search?q=" + encodeURIComponent([senderObject stringValue])],
+        connection = [CPURLConnection connectionWithRequest:request delegate:self];
+}
+
 
 
 - (void)connection:(CPURLConnection) connection didReceiveData:(CPString)data

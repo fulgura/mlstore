@@ -8,20 +8,26 @@
 
 @import <Foundation/CPObject.j>
 
+@import "MLCategoryBrowser.j"
+
 
 var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
     AddToolbarItemIdentifier = "AddToolbarItemIdentifier",
+    ViewMLItemIdentifier = "ViewMLItemIdentifier",
+    CategoryBrowserItemIdentifier = "CategoryBrowserItemIdentifier",
     SaleToolbarItemIdentifier = "SaleToolbarItemIdentifier",
     NAVIGATION_AREA_WIDTH = 200.0;
 
 @implementation AppController : CPObject
 {
+    CPWindow    theWindow;
 }
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
 {
-    var theWindow = [[CPWindow alloc] initWithContentRect:CGRectMakeZero() styleMask:CPBorderlessBridgeWindowMask],
-        contentView = [theWindow contentView];
+    theWindow = [[CPWindow alloc] initWithContentRect:CGRectMakeZero() styleMask:CPBorderlessBridgeWindowMask];
+
+    var contentView = [theWindow contentView];
 
 
     var navigationArea = [[CPView alloc] initWithFrame:CGRectMake(0.0, 0.0, NAVIGATION_AREA_WIDTH, CGRectGetHeight([contentView bounds]) - NAVIGATION_AREA_WIDTH)];
@@ -70,13 +76,13 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 // Return an array of toolbar item identifier (all the toolbar items that may be present in the toolbar)
 - (CPArray)toolbarAllowedItemIdentifiers:(CPToolbar)aToolbar
 {
-   return [CPToolbarFlexibleSpaceItemIdentifier, SliderToolbarItemIdentifier, AddToolbarItemIdentifier, SaleToolbarItemIdentifier];
+   return [CPToolbarFlexibleSpaceItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SliderToolbarItemIdentifier, AddToolbarItemIdentifier, SaleToolbarItemIdentifier];
 }
 
 // Return an array of toolbar item identifier (the default toolbar items that are present in the toolbar)
 - (CPArray)toolbarDefaultItemIdentifiers:(CPToolbar)aToolbar
 {
-   return [AddToolbarItemIdentifier, SaleToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, SliderToolbarItemIdentifier];
+   return [AddToolbarItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SaleToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, SliderToolbarItemIdentifier];
 }
 
 - (CPToolbarItem)toolbar:(CPToolbar)aToolbar itemForItemIdentifier:(CPString)anItemIdentifier willBeInsertedIntoToolbar:(BOOL)aFlag
@@ -118,6 +124,38 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
         [toolbarItem setMinSize:CGSizeMake(32, 32)];
         [toolbarItem setMaxSize:CGSizeMake(32, 32)];
     }
+    else if(anItemIdentifier == ViewMLItemIdentifier)
+    {
+        var mainBundle = [CPBundle mainBundle];
+        var image = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"mercadolibre.png"] size:CPSizeMake(256, 256)];
+        var highlighted = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"mercadolibre.png"] size:CPSizeMake(256, 256)];
+
+        [toolbarItem setImage:image];
+        [toolbarItem setAlternateImage:highlighted];
+
+        [toolbarItem setTarget:self];
+        [toolbarItem setAction:@selector(viewML:)];
+        [toolbarItem setLabel:"Visit ML"];
+
+        [toolbarItem setMinSize:CGSizeMake(32, 32)];
+        [toolbarItem setMaxSize:CGSizeMake(32, 32)];
+    }
+    else if (anItemIdentifier == CategoryBrowserItemIdentifier)
+    {
+        var mainBundle = [CPBundle mainBundle];
+        var image = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"categories-browser.png"] size:CPSizeMake(256, 256)];
+        var highlighted = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"categories-browser.png"] size:CPSizeMake(256, 256)];
+
+        [toolbarItem setImage:image];
+        [toolbarItem setAlternateImage:highlighted];
+
+        [toolbarItem setTarget:self];
+        [toolbarItem setAction:@selector(browserItemCategories:)];
+        [toolbarItem setLabel:"Browse categories"];
+
+        [toolbarItem setMinSize:CGSizeMake(32, 32)];
+        [toolbarItem setMaxSize:CGSizeMake(32, 32)];
+    }
 
     return toolbarItem;
 }
@@ -144,6 +182,42 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 {
     //This method is called if the request fails for any reason.
     CPLog.info(error);
+}
+
+/**
+ * Shows a Mercadolibre webpage in a Dialog
+ *
+ *
+ */
+- (void)viewML:(id)sender
+{
+    var HUDPanel = [[CPPanel alloc]
+        initWithContentRect:CGRectMake(100, 30, 1000, 600)
+        styleMask:CPHUDBackgroundWindowMask | CPResizableWindowMask | CPClosableWindowMask];
+
+    var panelContentView = [HUDPanel contentView];
+
+    [HUDPanel setTitle:"MercadoLibre"];
+    //[HUDPanel setBackgroundColor:[CPColor colorWithHexString:@"DDE4E4"]];
+    [HUDPanel setFloatingPanel:YES];
+
+    var webview = [[CPWebView alloc] initWithFrame:CGRectMake(0, 0, 1000, 600)];
+    [webview setAutoresizingMask:CPViewWidthSizable|CPViewHeightSizable];
+    [webview setMainFrameURL:"http://www.mercadolibre.com.ar/"];
+
+    [panelContentView addSubview:webview];
+
+    [HUDPanel orderFront:self];
+}
+
+/**
+ * Show a browser over categories
+ *
+ *
+ */
+- (void)browserItemCategories:(id)sender
+{
+    [[[MLCategoryBrowser alloc] init] orderFront:nil];
 }
 
 @end

@@ -67,6 +67,10 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
     [toolbar setVisible:YES];
     [theWindow setToolbar:toolbar];
 
+    var request = [CPURLRequest requestWithURL: "https://api.mercadolibre.com/sites/MLA/search?q=ipod"];
+    var data = [CPURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
+    var str = [data description];
+    CPLog.info(str);
 
     //[CPMenu setMenuBarVisible:YES];
 
@@ -119,7 +123,7 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 
         [toolbarItem setTarget:self];
         [toolbarItem setAction:@selector(sale:)];
-        [toolbarItem setLabel:"Sale"];
+        [toolbarItem setLabel:"Sale!!"];
 
         [toolbarItem setMinSize:CGSizeMake(32, 32)];
         [toolbarItem setMaxSize:CGSizeMake(32, 32)];

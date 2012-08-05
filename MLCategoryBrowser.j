@@ -89,6 +89,7 @@
 {
     alert("DOUBLE");
 }
+
 - (id)browser:(id)aBrowser numberOfChildrenOfItem:(id)anItem
 {
     if (anItem === nil)

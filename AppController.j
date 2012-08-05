@@ -9,6 +9,8 @@
 @import <Foundation/CPObject.j>
 
 @import "MLCategoryBrowser.j"
+@import <Raphuccino/Raphuccino.j>
+@import "MLSiteController.j"
 
 
 var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
@@ -61,6 +63,8 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 
 
     [theWindow orderFront:self];
+
+    [[MLSiteController alloc] init];
 
     var toolbar = [[CPToolbar alloc] initWithIdentifier:"Photos"];
     [toolbar setDelegate:self];

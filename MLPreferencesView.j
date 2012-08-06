@@ -14,8 +14,6 @@
 
     if (self)
     {
-
-
     	var contentView = [self contentView],
             bounds = [contentView bounds];
 

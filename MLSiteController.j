@@ -18,7 +18,7 @@
         site = nil;
 
     	var request = [CPURLRequest requestWithURL:"https://api.mercadolibre.com/sites/MLA/"],
-        	connection = [CPURLConnection connectionWithRequest:request delegate:self];
+            connection = [CPJSONPConnection sendRequest:request callback:"callback" delegate:self];
 
 	}
 
@@ -26,19 +26,17 @@
 }
 
 
-- (void)connection:(CPURLConnection) connection didReceiveData:(CPString)data
-{
-    //This method is called when a connection receives a response. in a
-    //multi-part request, this method will (eventually) be called multiple times,
-    //once for each part in the response.
 
-    site = [[MLSite alloc] initFromJSONObject: [data objectFromJSON]];
-    console.log(site);
+- (void)connection:(CPJSONPConnection)aConnection didReceiveData:(Object)data
+{
+    //console.log("Data:", data);
+    site = [[MLSite alloc] initFromJSONObject: data[2]];
+    //console.log("Site:", site);
 }
 
-- (void)connection:(CPURLConnection)connection didFailWithError:(CPString)error
+- (void)connection:(CPJSONPConnection)aConnection didFailWithError:(CPString)error
 {
-    //This method is called if the request fails for any reason.
-    CPLog.info(error);
+    //Ideally, we would do something smarter here.
+    alert(error);
 }
 @end

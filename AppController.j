@@ -73,10 +73,10 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
     [toolbar setVisible:YES];
     [theWindow setToolbar:toolbar];
 
-    var request = [CPURLRequest requestWithURL: "https://api.mercadolibre.com/sites/MLA/search?q=ipod"];
-    var data = [CPURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
-    var str = [data description];
-    console.log(data);
+//    var request = [CPURLRequest requestWithURL: "https://api.mercadolibre.com/sites/MLA/search?q=ipod"];
+//    var data = [CPURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];
+//    var str = [data description];
+//    console.log(data);
 
     //[CPMenu setMenuBarVisible:YES];
 

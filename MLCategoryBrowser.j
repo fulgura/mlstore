@@ -40,6 +40,8 @@
 
 @implementation MLCategoryBrowser : CPPanel
 {
+    CPArray categories;
+    CPBrowser browser;
 }
 
 - (id)init
@@ -60,14 +62,20 @@
 	    [self setBackgroundColor:[CPColor whiteColor]];
 	    [self setFloatingPanel:YES];
 
-	    var box = [[CPBox alloc] initWithFrame:bounds],
-	        browser = [[CPBrowser alloc] initWithFrame:bounds];
+	    var box = [[CPBox alloc] initWithFrame:bounds];
+
+	    browser = [[CPBrowser alloc] initWithFrame:bounds];
 
 	    [box setBorderType:CPLineBorder];
 	    [box setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
 	    [box setCenter:[contentView center]];
 	    [browser setWidth:300 ofColumn:1];
 	    [box setContentView:browser];
+
+        categories = [[CPArray alloc] init];
+
+        var request = [CPURLRequest requestWithURL:"https://api.mercadolibre.com/sites/MLA/categories/"],
+            connection = [CPJSONPConnection sendRequest:request callback:"callback" delegate:self];
 
 		[browser setDelegate:self];
 	    [browser setTarget:self];
@@ -80,6 +88,24 @@
 
     return self;
 }
+
+
+- (void)connection:(CPJSONPConnection)aConnection didReceiveData:(Object)data
+{
+
+    categories = [MLCategory initFromJSONObjects: data[2]];
+    console.log("Categories:", categories);
+    [browser loadColumnZero];
+}
+
+- (void)connection:(CPJSONPConnection)aConnection didFailWithError:(CPString)error
+{
+    //Ideally, we would do something smarter here.
+    alert(error);
+}
+
+
+
 - (void)browserClicked:(id)aBrowser
 {
     console.log("selected column: " + [aBrowser selectedColumn] + " row: " + [aBrowser selectedRowInColumn:[aBrowser selectedColumn]]);
@@ -93,7 +119,8 @@
 - (id)browser:(id)aBrowser numberOfChildrenOfItem:(id)anItem
 {
     if (anItem === nil)
-        return 4;
+        return [categories count];
+
     return [[anItem children] count];
 }
 

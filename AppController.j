@@ -8,14 +8,16 @@
 
 @import <Foundation/CPObject.j>
 
-@import "MLCategoryBrowser.j"
 @import <Raphuccino/Raphuccino.j>
 @import "MLSiteController.j"
+@import "MLCategoryBrowser.j"
+@import "MLPreferencesView.j"
 
 
 var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
     AddToolbarItemIdentifier = "AddToolbarItemIdentifier",
     ViewMLItemIdentifier = "ViewMLItemIdentifier",
+    MLPreferencesItemIdentifier = "MLPreferencesItemIdentifier",
     CategoryBrowserItemIdentifier = "CategoryBrowserItemIdentifier",
     SaleToolbarItemIdentifier = "SaleToolbarItemIdentifier",
     NAVIGATION_AREA_WIDTH = 200.0;
@@ -84,13 +86,13 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 // Return an array of toolbar item identifier (all the toolbar items that may be present in the toolbar)
 - (CPArray)toolbarAllowedItemIdentifiers:(CPToolbar)aToolbar
 {
-   return [CPToolbarFlexibleSpaceItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SliderToolbarItemIdentifier, AddToolbarItemIdentifier, SaleToolbarItemIdentifier];
+   return [CPToolbarFlexibleSpaceItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SliderToolbarItemIdentifier, AddToolbarItemIdentifier, MLPreferencesItemIdentifier, SaleToolbarItemIdentifier];
 }
 
 // Return an array of toolbar item identifier (the default toolbar items that are present in the toolbar)
 - (CPArray)toolbarDefaultItemIdentifiers:(CPToolbar)aToolbar
 {
-   return [AddToolbarItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SaleToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, SliderToolbarItemIdentifier];
+   return [AddToolbarItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SaleToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, MLPreferencesItemIdentifier, SliderToolbarItemIdentifier];
 }
 
 - (CPToolbarItem)toolbar:(CPToolbar)aToolbar itemForItemIdentifier:(CPString)anItemIdentifier willBeInsertedIntoToolbar:(BOOL)aFlag
@@ -164,6 +166,22 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
         [toolbarItem setMinSize:CGSizeMake(32, 32)];
         [toolbarItem setMaxSize:CGSizeMake(32, 32)];
     }
+    else if (anItemIdentifier == MLPreferencesItemIdentifier)
+    {
+        var mainBundle = [CPBundle mainBundle];
+        var image = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"preferences.png"] size:CPSizeMake(256, 256)];
+        var highlighted = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"preferences.png"] size:CPSizeMake(256, 256)];
+
+        [toolbarItem setImage:image];
+        [toolbarItem setAlternateImage:highlighted];
+
+        [toolbarItem setTarget:self];
+        [toolbarItem setAction:@selector(editPreferences:)];
+        [toolbarItem setLabel:"Preferences"];
+
+        [toolbarItem setMinSize:CGSizeMake(32, 32)];
+        [toolbarItem setMaxSize:CGSizeMake(32, 32)];
+    }
 
     return toolbarItem;
 }
@@ -226,6 +244,16 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 - (void)browserItemCategories:(id)sender
 {
     [[[MLCategoryBrowser alloc] init] orderFront:nil];
+}
+
+/**
+ * Show a preferences panel
+ *
+ *
+ */
+- (void)editPreferences:(id)sender
+{
+    [[[MLPreferencesView alloc] init] orderFront:nil];
 }
 
 @end

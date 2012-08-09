@@ -33,7 +33,6 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 
     var contentView = [theWindow contentView];
 
-
     var navigationArea = [[CPView alloc] initWithFrame:CGRectMake(0.0, 0.0, NAVIGATION_AREA_WIDTH, CGRectGetHeight([contentView bounds]) - NAVIGATION_AREA_WIDTH)];
 
     [navigationArea setBackgroundColor:[CPColor colorWithHexString:@"DDE4E4"]];
@@ -79,6 +78,16 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 //    console.log(data);
 
     //[CPMenu setMenuBarVisible:YES];
+
+    var request = new CFHTTPRequest();
+    request.open(@"GET", "https://api.mercadolibre.com/sites/MLA/categories/", true);
+
+    request.oncomplete = function()
+    {
+         console.log("Answer: ", JSON.parse(request.responseText())) ;
+    };
+
+    request.send(@"");
 
 }
 
@@ -194,22 +203,6 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
         connection = [CPURLConnection connectionWithRequest:request delegate:self];
 }
 
-
-
-- (void)connection:(CPURLConnection) connection didReceiveData:(CPString)data
-{
-    //This method is called when a connection receives a response. in a
-    //multi-part request, this method will (eventually) be called multiple times,
-    //once for each part in the response.
-    CPLog.info(data);
-}
-
-- (void)connection:(CPURLConnection)connection didFailWithError:(CPString)error
-{
-    //This method is called if the request fails for any reason.
-    CPLog.info(error);
-}
-
 /**
  * Shows a Mercadolibre webpage in a Dialog
  *
@@ -254,6 +247,59 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 - (void)editPreferences:(id)sender
 {
     [[[MLPreferencesView alloc] init] orderFront:nil];
+}
+
+/**
+ * Show a preferences panel
+ *
+ *
+ */
+- (void)sale:(id)sender
+{
+        var content = {
+            "title":"Anteojos Ray Ban Wayfare",
+            "category_id":"MLA5529",
+            "price":10,
+            "currency_id":"ARS",
+            "available_quantity":1,
+            "buying_mode":"buy_it_now",
+            "listing_type_id":"bronze",
+            "condition":"new",
+            "description":"{Model: RB2140. Size: 50mm. Name: WAYFARER. Color: Gloss Black. Includes Ray-Ban Carrying Case and Cleaning Cloth. New in Box",
+            "pictures":[
+                {"source":"http://upload.wikimedia.org/wikipedia/commons/f/fd/Ray_Ban_Original_Wayfarer.jpg"},
+                {"source":"http://en.wikipedia.org/wiki/File:Teashades.gif"}
+            ]
+        };
+
+        var request = new CFHTTPRequest();
+        request.open(@"POST", "https://api.mercadolibre.com/items?access_token=APP_USR-9760-080911-0dd2e49ca0d728f6bde023c3480ed7b7-30429282", true);
+        //request.setRequestHeader(@"Content-Type",@"application/json");
+
+        request.oncomplete = function()
+        {
+            console.log("Answer: ", request);
+        };
+
+        request.onerror = function()
+        {
+            console.log("ERROR: ", request);
+        };
+
+        request.send("");
+}
+
+
+- (void)connection:(CPURLConnection) connection didReceiveData:(CPString)data
+{
+
+    console.log("Answer:", data);
+}
+
+- (void)connection:(CPURLConnection)connection didFailWithError:(CPString)error
+{
+    //Ideally, we would do something smarter here.
+    alert(error);
 }
 
 @end

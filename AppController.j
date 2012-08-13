@@ -12,6 +12,7 @@
 @import "MLSiteController.j"
 @import "MLCategoryBrowser.j"
 @import "MLPreferencesView.j"
+@import "MLNavigationView.j"
 
 
 var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
@@ -33,9 +34,7 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 
     var contentView = [theWindow contentView];
 
-    var navigationArea = [[CPView alloc] initWithFrame:CGRectMake(0.0, 0.0, NAVIGATION_AREA_WIDTH, CGRectGetHeight([contentView bounds]) - NAVIGATION_AREA_WIDTH)];
-
-    [navigationArea setBackgroundColor:[CPColor colorWithHexString:@"DDE4E4"]];
+    var navigationArea = [[MLNavigationView alloc] initWithFrame:CGRectMake(0.0, 0.0, NAVIGATION_AREA_WIDTH, CGRectGetHeight([contentView bounds]) - NAVIGATION_AREA_WIDTH)];
 
     // This view will grow in height, but stay fixed width attached to the left side of the screen.
     [navigationArea setAutoresizingMask:CPViewHeightSizable | CPViewMaxXMargin];

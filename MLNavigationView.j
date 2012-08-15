@@ -1,5 +1,5 @@
 @import <AppKit/CPView.j>
-
+@import "MLNavigationElementDataView.j"
 
 @implementation MLNavigationView : CPView
 {
@@ -21,10 +21,32 @@
             scrollView = [[CPScrollView alloc] initWithFrame:[self bounds]],
             outlineView = [[CPOutlineView alloc] initWithFrame:[self bounds]];
 
-        root = [[MLNavigationComponent alloc] init];
-        [root addChild: [[MLNavigationComponent alloc] init]];
+        root = [[MLNavigationComponent alloc] initWithLabel:"Root" height: 0];
+
+        [root addChild: [[MLNavigationComponent alloc] initWithLabel:"Messages" height: 30]];
+        [root addChild: [[MLNavigationComponent alloc] initWithLabel:"Events" height: 30]];
+
+        var sellerComponent = [[MLNavigationComponent alloc] initWithLabel:"Seller" height: 30];
+        [sellerComponent addChild: [[MLNavigationComponent alloc] initWithLabel:"Waiting for feedback" height: 20]];
+        [sellerComponent addChild: [[MLNavigationComponent alloc] initWithLabel:"Waiting for payments" height: 20]];
+
+
+        [root addChild: sellerComponent];
+        [root addChild: [[MLNavigationComponent alloc] initWithLabel:"Buyer" height: 30]];
+        [root addChild: [[MLNavigationComponent alloc] initWithLabel:"Reports" height: 30]];
+
+        [outlineView setBackgroundColor:[CPColor colorWithHexString:@"e0ecfa"]];
+        [scrollView setAutohidesScrollers:YES];
+
+        [column setDataView:[[MLNavigationElementDataView alloc] initWithFrame:CGRectMakeZero()]];
+
+        setTimeout(function(){
+                    [column setWidth:200];
+                },0);
 
         [outlineView addTableColumn:column];
+        [outlineView setHeaderView:nil];
+        [outlineView setCornerView:nil];
         [outlineView setAllowsMultipleSelection:NO];
         [outlineView setDataSource:self];
         [outlineView setDelegate:self];
@@ -36,7 +58,7 @@
         [scrollView setDocumentView:outlineView];
 
         //[self setBackgroundColor:[CPColor colorWithHexString:@"DDE4E4"]];
-
+        [self addSubview:scrollView];
 
 
     }
@@ -69,7 +91,7 @@
 - (int)outlineView:(CPOutlineView)theOutlineView numberOfChildrenOfItem:(id)theItem
 {
     if (theItem === nil)
-        theItem = [self root];
+        theItem = [self root] ;
     return [[theItem children] count];
 }
 
@@ -141,44 +163,30 @@
 
 - (int)outlineView:(CPOutlineView)outlineView heightOfRowByItem:(id)anItem
 {
-    return 30;//[anItem heightOfRowByItem];
+    return [anItem height];
 }
 
 - (BOOL)outlineView:(CPOutlineView)anOutlineView shouldEditTableColumn:(CPTableColumn)aColumn item:(int)aRow
 {
-    CPLog.trace("......Diego.....");
     return YES;
 }
 @end
 
-@implementation CPColor (OutlineView)
-+ (CPColor)selectionColor
-{
-        //return [CPColor colorWithPatternImage:[[CPImage alloc]
-        //initByReferencingFile:@"Resources/gradient.png" size:CGSizeMake (1,20)]];
-        return [CPColor colorWithHexString:@"5f83b9"];
-}
-
-+ (CPColor)selectionColorSourceView {
-        //return [CPColor colorWithPatternImage:[[CPImage alloc] initByReferencingFile:@"Resources/tableviewselection.png" size:CGSizeMake(6,22)]];
-        return [CPColor greenColor];
-}
-
-@end
 
 @implementation MLNavigationComponent : CPObject
 {
-    /*!
-    *
-    */
-    CPMutableArray     children @accessors;
+    CPString        label @accessors;
+    CPMutableArray  children @accessors;
+    int             height @accessors;
 }
 
-- (id)init
+- (id)initWithLabel:(CPString)aLabel height:(int)aHeight
 {
     if (self = [super init])
     {
-		children = [[CPArray alloc] init];
+        height = aHeight;
+        label = aLabel;
+        children = [[CPArray alloc] init];
     }
     return self;
 }
@@ -187,6 +195,7 @@
 {
     return [super description];
 }
+
 -(void)addChild:(MLNavigationComponent)aChildComponent
 {
 	[children addObject:aChildComponent];

@@ -45,7 +45,7 @@
 	[self setDomains:[args[3] componentsSeparatedByString:"="][1]];
 
 	//TODO: Find it in CPCookie
-	console.log(self);
+	//console.log(self);
 
 
 }

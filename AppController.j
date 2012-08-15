@@ -13,6 +13,8 @@
 @import "MLCategoryBrowser.j"
 @import "MLPreferencesView.j"
 @import "MLAPIController.j"
+@import "MLNavigationView.j"
+@import "MLUserInfoView.j"
 
 var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
     AddToolbarItemIdentifier = "AddToolbarItemIdentifier",
@@ -38,7 +40,7 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 
     var contentView = [theWindow contentView];
 
-    var navigationArea = [[CPView alloc] initWithFrame:CGRectMake(0.0, 0.0, NAVIGATION_AREA_WIDTH, CGRectGetHeight([contentView bounds]) - NAVIGATION_AREA_WIDTH)];
+    var navigationArea = [[MLNavigationView alloc] initWithFrame:CGRectMake(0.0, 0.0, NAVIGATION_AREA_WIDTH, CGRectGetHeight([contentView bounds]) - NAVIGATION_AREA_WIDTH)];
 
     // This view will grow in height, but stay fixed width attached to the left side of the screen.
     [navigationArea setAutoresizingMask:CPViewHeightSizable | CPViewMaxXMargin];
@@ -83,18 +85,10 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
     //[CPMenu setMenuBarVisible:YES];
 }
 
-// Return an array of toolbar item identifier (all the toolbar items that may be present in the toolbar)
-- (CPArray)toolbarAllowedItemIdentifiers:(CPToolbar)aToolbar
-{
-   console.log("toolbarAllowedItemIdentifiers");
-   return [UserInfoToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SliderToolbarItemIdentifier, AddToolbarItemIdentifier, MLPreferencesItemIdentifier, SaleToolbarItemIdentifier];
-}
-
 // Return an array of toolbar item identifier (the default toolbar items that are present in the toolbar)
 - (CPArray)toolbarDefaultItemIdentifiers:(CPToolbar)aToolbar
 {
-    console.log("toolbarDefaultItemIdentifiers");
-   return [UserInfoToolbarItemIdentifier, AddToolbarItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SaleToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, MLPreferencesItemIdentifier, SliderToolbarItemIdentifier];
+   return [UserInfoToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, AddToolbarItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SaleToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, MLPreferencesItemIdentifier, SliderToolbarItemIdentifier];
 }
 
 - (CPToolbarItem)toolbar:(CPToolbar)aToolbar itemForItemIdentifier:(CPString)anItemIdentifier willBeInsertedIntoToolbar:(BOOL)aFlag
@@ -266,7 +260,7 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 {
     [apiController userInfo:function(userInfo)
     {
-        console.log(userInfo);
+        [[[MLUserInfoView alloc] initWithUserInfo:userInfo] orderFront:nil];
     }];
 
 }

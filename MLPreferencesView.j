@@ -17,16 +17,12 @@
     	var contentView = [self contentView],
             bounds = [contentView bounds];
 
-        //bounds.size.height -= 20.0;
-
         [self setTitle:"Preferences"];
-	    //[self setFloatingPanel:YES];
 
 	    var box = [[CPBox alloc] initWithFrame:CGRectMake(10, 10, CGRectGetWidth([contentView bounds]) - 20 , CGRectGetHeight([contentView bounds]) - 20)];
 
 	    [box setBorderType:CPLineBorder];
 	    [box setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
-	    //[box setCenter:[contentView center]];
 
 	    var toolbar = [CPToolbar new];
         [toolbar setDisplayMode:CPToolbarDisplayModeIconAndLabel];

@@ -12,8 +12,7 @@
 @import "MLSiteController.j"
 @import "MLCategoryBrowser.j"
 @import "MLPreferencesView.j"
-@import "MLNavigationView.j"
-
+@import "MLAPIController.j"
 
 var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
     AddToolbarItemIdentifier = "AddToolbarItemIdentifier",
@@ -21,20 +20,25 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
     MLPreferencesItemIdentifier = "MLPreferencesItemIdentifier",
     CategoryBrowserItemIdentifier = "CategoryBrowserItemIdentifier",
     SaleToolbarItemIdentifier = "SaleToolbarItemIdentifier",
+    UserInfoToolbarItemIdentifier = "UserInfoToolbarItemIdentifier",
     NAVIGATION_AREA_WIDTH = 200.0;
 
 @implementation AppController : CPObject
 {
     CPWindow    theWindow;
+    MLAPIController apiController;
 }
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
 {
+
+    apiController = [[MLAPIController alloc] init];
+
     theWindow = [[CPWindow alloc] initWithContentRect:CGRectMakeZero() styleMask:CPBorderlessBridgeWindowMask];
 
     var contentView = [theWindow contentView];
 
-    var navigationArea = [[MLNavigationView alloc] initWithFrame:CGRectMake(0.0, 0.0, NAVIGATION_AREA_WIDTH, CGRectGetHeight([contentView bounds]) - NAVIGATION_AREA_WIDTH)];
+    var navigationArea = [[CPView alloc] initWithFrame:CGRectMake(0.0, 0.0, NAVIGATION_AREA_WIDTH, CGRectGetHeight([contentView bounds]) - NAVIGATION_AREA_WIDTH)];
 
     // This view will grow in height, but stay fixed width attached to the left side of the screen.
     [navigationArea setAutoresizingMask:CPViewHeightSizable | CPViewMaxXMargin];
@@ -77,30 +81,20 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 //    console.log(data);
 
     //[CPMenu setMenuBarVisible:YES];
-
-    var request = new CFHTTPRequest();
-    request.open(@"GET", "https://api.mercadolibre.com/sites/MLA/categories/", true);
-
-    request.oncomplete = function()
-    {
-         console.log("Answer: ", JSON.parse(request.responseText())) ;
-    };
-
-    request.send(@"");
-
 }
-
 
 // Return an array of toolbar item identifier (all the toolbar items that may be present in the toolbar)
 - (CPArray)toolbarAllowedItemIdentifiers:(CPToolbar)aToolbar
 {
-   return [CPToolbarFlexibleSpaceItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SliderToolbarItemIdentifier, AddToolbarItemIdentifier, MLPreferencesItemIdentifier, SaleToolbarItemIdentifier];
+   console.log("toolbarAllowedItemIdentifiers");
+   return [UserInfoToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SliderToolbarItemIdentifier, AddToolbarItemIdentifier, MLPreferencesItemIdentifier, SaleToolbarItemIdentifier];
 }
 
 // Return an array of toolbar item identifier (the default toolbar items that are present in the toolbar)
 - (CPArray)toolbarDefaultItemIdentifiers:(CPToolbar)aToolbar
 {
-   return [AddToolbarItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SaleToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, MLPreferencesItemIdentifier, SliderToolbarItemIdentifier];
+    console.log("toolbarDefaultItemIdentifiers");
+   return [UserInfoToolbarItemIdentifier, AddToolbarItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SaleToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, MLPreferencesItemIdentifier, SliderToolbarItemIdentifier];
 }
 
 - (CPToolbarItem)toolbar:(CPToolbar)aToolbar itemForItemIdentifier:(CPString)anItemIdentifier willBeInsertedIntoToolbar:(BOOL)aFlag
@@ -190,6 +184,22 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
         [toolbarItem setMinSize:CGSizeMake(32, 32)];
         [toolbarItem setMaxSize:CGSizeMake(32, 32)];
     }
+    else if (anItemIdentifier == UserInfoToolbarItemIdentifier)
+    {
+        var mainBundle = [CPBundle mainBundle];
+        var image = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"user.png"] size:CPSizeMake(256, 256)];
+        var highlighted = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"user.png"] size:CPSizeMake(256, 256)];
+
+        [toolbarItem setImage:image];
+        [toolbarItem setAlternateImage:highlighted];
+
+        [toolbarItem setTarget:self];
+        [toolbarItem setAction:@selector(showUserInfo:)];
+        [toolbarItem setLabel:"User Info"];
+
+        [toolbarItem setMinSize:CGSizeMake(32, 32)];
+        [toolbarItem setMaxSize:CGSizeMake(32, 32)];
+    }
 
     return toolbarItem;
 }
@@ -246,6 +256,19 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 - (void)editPreferences:(id)sender
 {
     [[[MLPreferencesView alloc] init] orderFront:nil];
+}
+/**
+ * Show a user info panel
+ *
+ *
+ */
+- (void)showUserInfo:(id)sender
+{
+    [apiController userInfo:function(userInfo)
+    {
+        console.log(userInfo);
+    }];
+
 }
 
 /**

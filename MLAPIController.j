@@ -35,31 +35,14 @@
 -(void)findAccessToken
 {
 	var sharedApplication = [CPApplication sharedApplication];
-	var namedArguments = [sharedApplication namedArguments];
 
-	var token = [namedArguments objectForKey:"access_token"];
-	if(token != nil)
-	{
-		[self setAccessToken:token];
-	}
+	var hash = [[sharedApplication arguments] firstObject],
+		args = [hash componentsSeparatedByString:"&"];
 
-	var expires_in = [namedArguments objectForKey:"expires_in"];
-	if(expires_in != nil)
-	{
-		[self setExpiresIn:expires_in];
-	}
-
-	var user_id = [namedArguments objectForKey:"user_id"];
-	if(user_id != nil)
-	{
-		[self setUserId:user_id];
-	}
-
-	var dms = [namedArguments objectForKey:"domains"];
-	if(dms != nil)
-	{
-		[self setDomains:dms];
-	}
+	[self setAccessToken:[args[0] componentsSeparatedByString:"="][1]];
+	[self setExpiresIn:[args[1] componentsSeparatedByString:"="][1]];
+	[self setUserId:[args[2] componentsSeparatedByString:"="][1]];
+	[self setDomains:[args[3] componentsSeparatedByString:"="][1]];
 
 	//TODO: Find it in CPCookie
 	console.log(self);

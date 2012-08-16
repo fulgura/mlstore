@@ -83,6 +83,17 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 //    console.log(data);
 
     //[CPMenu setMenuBarVisible:YES];
+
+       [[CPNotificationCenter defaultCenter ]
+            addObserver:self
+               selector:@selector(changeValue:)
+                   name:@"ChangeValue"
+                 object:nil];
+}
+
+- (void)changeValue:(CPNotification)aNotification
+{
+    console.log("changeValue", aNotification);
 }
 
 // Return an array of toolbar item identifier (the default toolbar items that are present in the toolbar)

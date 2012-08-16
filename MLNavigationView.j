@@ -63,8 +63,8 @@ var UseCaseGroupHeightOfRow = 20,
     var eventsNode = [self createUseCaseTreeNode:"EVENTS" font:[CPFont boldSystemFontOfSize:12.0] textColor:[CPColor grayColor] heightOfRow:UseCaseGroupHeightOfRow pathForResource:nil];
     var sellerNode = [self createUseCaseTreeNode:"SELLER" font:[CPFont boldSystemFontOfSize:12.0] textColor:[CPColor grayColor] heightOfRow:UseCaseGroupHeightOfRow pathForResource:nil];
 
-    var leaveFeedback = [self createUseCaseTreeNode:"Leave Feedback" font:[CPFont boldSystemFontOfSize:10.0] textColor:[CPColor blackColor] heightOfRow:UseCaseHeightOfRow pathForResource:"folder.png"];
-    var readyToShip = [self createUseCaseTreeNode:"Ready to ship" font:[CPFont boldSystemFontOfSize:10.0] textColor:[CPColor blackColor] heightOfRow:UseCaseHeightOfRow pathForResource:"smart-folder.png"];
+    var leaveFeedback = [self createUseCaseTreeNode:"Leave Feedback" font:[CPFont systemFontOfSize:12.0] textColor:[CPColor blackColor] heightOfRow:UseCaseHeightOfRow pathForResource:"folder.png"];
+    var readyToShip = [self createUseCaseTreeNode:"Ready to ship" font:[CPFont systemFontOfSize:12.0] textColor:[CPColor blackColor] heightOfRow:UseCaseHeightOfRow pathForResource:"smart-folder.png"];
     [[sellerNode mutableChildNodes] addObject:leaveFeedback];
     [[sellerNode mutableChildNodes] addObject:readyToShip];
 
@@ -171,6 +171,24 @@ var UseCaseGroupHeightOfRow = 20,
 {
     return YES;
 }
+- (void)outlineViewSelectionDidChange:(CPNotification)notification
+{
+    [[CPNotificationCenter defaultCenter] postNotificationName:@"ChangeValue" object:nil];
+}
+- (BOOL)outlineView:(CPOutlineView)outlineView shouldSelectItem:(id)anItem
+ {
+    var icon = [[anItem representedObject] objectForKey:"icon"];
+
+    if (icon != nil)
+    {
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }
+ }
+
 @end
 
 @implementation MLNavigationViewElement : CPView
@@ -191,7 +209,6 @@ var UseCaseGroupHeightOfRow = 20,
     {
 
         var iconView = [[CPImageView alloc] initWithFrame:CGRectMake(0, 0, 16, 16)];
-        //[iconView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
         [iconView setHasShadow:NO];
         [iconView setImageScaling:CPScaleProportionally];
 
@@ -201,7 +218,7 @@ var UseCaseGroupHeightOfRow = 20,
 
         [self addSubview:iconView];
 
-        var label = [[CPTextField alloc] initWithFrame:CGRectMake(16, 0, 200 - 16, CGRectGetHeight([self bounds]))];
+        var label = [[CPTextField alloc] initWithFrame:CGRectMake(20, 0, 200 - 16, CGRectGetHeight([self bounds]))];
         [label setAlignment:CPLeftTextAlignment];
         [label setTextColor:[anObject objectForKey:"textColor"]];
         [label setFont:[anObject objectForKey:"font"]];
@@ -210,12 +227,10 @@ var UseCaseGroupHeightOfRow = 20,
 
         [self addSubview:label];
         [label sizeToFit];
-        console.log([self bounds],[iconView bounds],[label bounds]);
-
     }
     else
     {
-        var label = [[CPTextField alloc] initWithFrame:CGRectMake(10, 0, CGRectGetWidth([self bounds]), CGRectGetHeight([self bounds]))];
+        var label = [[CPTextField alloc] initWithFrame:CGRectMake(4, 0, CGRectGetWidth([self bounds]), CGRectGetHeight([self bounds]))];
         [label setAlignment:CPLeftTextAlignment];
         [label setTextColor:[anObject objectForKey:"textColor"]];
         [label setFont:[anObject objectForKey:"font"]];

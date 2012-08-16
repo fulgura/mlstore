@@ -1,5 +1,8 @@
 @import <AppKit/CPView.j>
-@import "MLNavigationElementDataView.j"
+@import <AppKit/CPTreeNode.j>
+
+var UseCaseGroupHeightOfRow = 20,
+    UseCaseHeightOfRow = 16;
 
 @implementation MLNavigationView : CPView
 {
@@ -7,7 +10,7 @@
     *
     */
 
-    MLNavigationComponent root @accessors;
+    CPTreeNode root @accessors;
 
 }
 - (id)initWithFrame:(CGRect)aFrame
@@ -19,26 +22,13 @@
             height = [[self bounds].size.height],
             column = [[CPTableColumn alloc] initWithIdentifier:@"One"],
             scrollView = [[CPScrollView alloc] initWithFrame:[self bounds]],
-            outlineView = [[CPOutlineView alloc] initWithFrame:[self bounds]];
+            outlineView = [[CPOutlineView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth([self bounds]) - 20 , CGRectGetHeight([self bounds]))];
 
-        root = [[MLNavigationComponent alloc] initWithLabel:"Root" height: 0];
-
-        [root addChild: [[MLNavigationComponent alloc] initWithLabel:"Messages" height: 30]];
-        [root addChild: [[MLNavigationComponent alloc] initWithLabel:"Events" height: 30]];
-
-        var sellerComponent = [[MLNavigationComponent alloc] initWithLabel:"Seller" height: 30];
-        [sellerComponent addChild: [[MLNavigationComponent alloc] initWithLabel:"Waiting for feedback" height: 20]];
-        [sellerComponent addChild: [[MLNavigationComponent alloc] initWithLabel:"Waiting for payments" height: 20]];
-
-
-        [root addChild: sellerComponent];
-        [root addChild: [[MLNavigationComponent alloc] initWithLabel:"Buyer" height: 30]];
-        [root addChild: [[MLNavigationComponent alloc] initWithLabel:"Reports" height: 30]];
-
+        [self createDatasource];
         [outlineView setBackgroundColor:[CPColor colorWithHexString:@"e0ecfa"]];
         [scrollView setAutohidesScrollers:YES];
 
-        [column setDataView:[[MLNavigationElementDataView alloc] initWithFrame:CGRectMakeZero()]];
+        [column setDataView:[[MLNavigationViewElement alloc] initWithFrame:CGRectMakeZero()]];
 
         setTimeout(function(){
                     [column setWidth:200];
@@ -64,35 +54,71 @@
     }
     return self;
 }
+
+-(void)createDatasource
+{
+    root = [CPTreeNode treeNodeWithRepresentedObject:"Root"];
+
+    var messagesNode = [self createUseCaseTreeNode:"MESSAGES" font:[CPFont boldSystemFontOfSize:12.0] textColor:[CPColor grayColor] heightOfRow:UseCaseGroupHeightOfRow pathForResource:nil];
+    var eventsNode = [self createUseCaseTreeNode:"EVENTS" font:[CPFont boldSystemFontOfSize:12.0] textColor:[CPColor grayColor] heightOfRow:UseCaseGroupHeightOfRow pathForResource:nil];
+    var sellerNode = [self createUseCaseTreeNode:"SELLER" font:[CPFont boldSystemFontOfSize:12.0] textColor:[CPColor grayColor] heightOfRow:UseCaseGroupHeightOfRow pathForResource:nil];
+
+    var leaveFeedback = [self createUseCaseTreeNode:"Leave Feedback" font:[CPFont boldSystemFontOfSize:10.0] textColor:[CPColor blackColor] heightOfRow:UseCaseHeightOfRow pathForResource:"folder.png"];
+    var readyToShip = [self createUseCaseTreeNode:"Ready to ship" font:[CPFont boldSystemFontOfSize:10.0] textColor:[CPColor blackColor] heightOfRow:UseCaseHeightOfRow pathForResource:"smart-folder.png"];
+    [[sellerNode mutableChildNodes] addObject:leaveFeedback];
+    [[sellerNode mutableChildNodes] addObject:readyToShip];
+
+    var buyerNode = [self createUseCaseTreeNode:"BUYER" font:[CPFont boldSystemFontOfSize:12.0] textColor:[CPColor grayColor] heightOfRow:UseCaseGroupHeightOfRow pathForResource:nil];
+    var reportsNode = [self createUseCaseTreeNode:"REPORTS" font:[CPFont boldSystemFontOfSize:12.0] textColor:[CPColor grayColor] heightOfRow:UseCaseGroupHeightOfRow pathForResource:nil];
+
+    [[root mutableChildNodes] addObject:messagesNode];
+    [[root mutableChildNodes] addObject:eventsNode];
+    [[root mutableChildNodes] addObject:sellerNode];
+    [[root mutableChildNodes] addObject:buyerNode];
+    [[root mutableChildNodes] addObject:reportsNode];
+}
+
+-(CPTreeNode)createUseCaseTreeNode:(CPString)aLabel font:(CPFont)aFont textColor:(CPColor)aColor heightOfRow:(int)aHeightOfRow pathForResource:(CPString)aResourcePath
+{
+    var representedObject = [[CPDictionary alloc] init];
+
+    [representedObject setValue:aLabel forKey:"label"];
+    [representedObject setValue:aFont forKey:"font"];
+    [representedObject setValue:aColor forKey:"textColor"];
+    [representedObject setValue:aHeightOfRow forKey:"heightOfRow"];
+
+    if(aResourcePath != nil)
+    {
+        var image = [[CPImage alloc] initWithContentsOfFile:[[CPBundle mainBundle] pathForResource:aResourcePath] size:CPSizeMake(16, 16)];
+        [representedObject setValue:image forKey:"icon"];
+    }
+
+    return  [CPTreeNode treeNodeWithRepresentedObject:representedObject];
+}
 @end
 
-/*!
-*       PaletteDataSource
-*
-*               - Datasource to use in Palette View in Form Builder.
-*
-*/
 @implementation MLNavigationView (OutlineViewDataSource)
 
 - (id)outlineView:(CPOutlineView)theOutlineView child:(int)theIndex ofItem:(id)theItem
 {
     if (theItem === nil)
     	theItem = [self root];
-    return [[theItem children] objectAtIndex:theIndex];
+
+    return [[theItem childNodes] objectAtIndex:theIndex];
 }
 
 - (BOOL)outlineView:(CPOutlineView)theOutlineView isItemExpandable:(id)theItem
 {
     if (theItem === nil)
     	theItem = [self root];
-    return [[theItem children] count] > 0;
+    return [[theItem childNodes] count] > 0;
 }
 
 - (int)outlineView:(CPOutlineView)theOutlineView numberOfChildrenOfItem:(id)theItem
 {
     if (theItem === nil)
         theItem = [self root] ;
-    return [[theItem children] count];
+    return [[theItem childNodes] count];
 }
 
 - (id)outlineView:(CPOutlineView)anOutlineView objectValueForTableColumn:(CPTableColumn)theColumn byItem:(id)theItem
@@ -100,7 +126,7 @@
     if (theItem === nil)
     	theItem = [self root];
 
-    return theItem;
+    return [theItem representedObject];
 }
 
 - (BOOL)outlineView:(CPOutlineView)anOutlineView writeItems:(CPArray)theItems toPasteboard:(CPPasteBoard)thePasteBoard
@@ -114,8 +140,6 @@
 
 - (CPDragOperation)outlineView:(CPOutlineView)anOutlineView validateDrop:(id < CPDraggingInfo >)theInfo proposedItem:(id)theItem proposedChildIndex:(int)theIndex
 {
-    CPLog.debug(@"validate item: %@ at index: %i", theItem, theIndex);
-
     if (theItem === nil)
         [anOutlineView setDropItem:nil dropChildIndex:theIndex];
 
@@ -126,44 +150,21 @@
 
 - (BOOL)outlineView:(CPOutlineView)outlineView acceptDrop:(id < CPDraggingInfo >)theInfo item:(id)theItem childIndex:(int)theIndex
 {
-    // if (theItem === nil)
-    //     theItem = [self menu];
-    //
-    // // CPLog.debug(@"drop item: %@ at index: %i", theItem, theIndex);
-    //
-    // var menuIndex = [_draggedItems count];
-    //
-    // while (menuIndex--)
-    // {
-    //     var menu = [_draggedItems objectAtIndex:menuIndex];
-    //
-    //     // CPLog.debug(@"move item: %@ to: %@ index: %@", menu, theItem, theIndex);
-    //
-    //     if (menu === theItem)
-    //         continue;
-    //
-    //     [menu removeFromMenu];
-    //     [theItem insertSubmenu:menu atIndex:theIndex];
-    //     theIndex += 1;
-    // }
-    //
-    // return YES;
     return NO;
 }
 
 
 @end
 /*!
-*           IOFormBuilderPaletteView
-*                   -
-*
-*
-*/
+ *
+ *
+ *
+ */
 @implementation MLNavigationView (OutlineViewDelegate)
 
 - (int)outlineView:(CPOutlineView)outlineView heightOfRowByItem:(id)anItem
 {
-    return [anItem height];
+    return [[anItem representedObject] objectForKey:"heightOfRow"];
 }
 
 - (BOOL)outlineView:(CPOutlineView)anOutlineView shouldEditTableColumn:(CPTableColumn)aColumn item:(int)aRow
@@ -172,32 +173,60 @@
 }
 @end
 
-
-@implementation MLNavigationComponent : CPObject
+@implementation MLNavigationViewElement : CPView
 {
-    CPString        label @accessors;
-    CPMutableArray  children @accessors;
-    int             height @accessors;
 }
 
-- (id)initWithLabel:(CPString)aLabel height:(int)aHeight
+- (void)setObjectValue:(id)anObject
 {
-    if (self = [super init])
+    var subviews = [self subviews];
+    for (var i=0; i < subviews.length; i++) {
+        [subviews[i] removeFromSuperview];
+    };
+
+
+    var icon = [anObject objectForKey:"icon"];
+
+    if(icon != nil)
     {
-        height = aHeight;
-        label = aLabel;
-        children = [[CPArray alloc] init];
+
+        var iconView = [[CPImageView alloc] initWithFrame:CGRectMake(0, 0, 16, 16)];
+        //[iconView setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
+        [iconView setHasShadow:NO];
+        [iconView setImageScaling:CPScaleProportionally];
+
+        var iconSize = [icon size];
+        [iconView setFrameSize:iconSize];
+        [iconView setImage:icon];
+
+        [self addSubview:iconView];
+
+        var label = [[CPTextField alloc] initWithFrame:CGRectMake(16, 0, 200 - 16, CGRectGetHeight([self bounds]))];
+        [label setAlignment:CPLeftTextAlignment];
+        [label setTextColor:[anObject objectForKey:"textColor"]];
+        [label setFont:[anObject objectForKey:"font"]];
+        [label setStringValue:[anObject objectForKey:"label"]];
+        //[label setBackgroundColor:[CPColor grayColor]];
+
+        [self addSubview:label];
+        [label sizeToFit];
+        console.log([self bounds],[iconView bounds],[label bounds]);
+
     }
-    return self;
-}
+    else
+    {
+        var label = [[CPTextField alloc] initWithFrame:CGRectMake(10, 0, CGRectGetWidth([self bounds]), CGRectGetHeight([self bounds]))];
+        [label setAlignment:CPLeftTextAlignment];
+        [label setTextColor:[anObject objectForKey:"textColor"]];
+        [label setFont:[anObject objectForKey:"font"]];
+        [label setStringValue:[anObject objectForKey:"label"]];
 
-- (CPString)description
-{
-    return [super description];
-}
+        [self addSubview:label];
+        [label sizeToFit];
+    }
 
--(void)addChild:(MLNavigationComponent)aChildComponent
-{
-	[children addObject:aChildComponent];
+
+
+    [self setNeedsDisplay: YES];
 }
 @end

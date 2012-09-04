@@ -15,13 +15,15 @@
 @import "MLAPIController.j"
 @import "MLNavigationView.j"
 @import "MLUserInfoView.j"
+@import "MLSearchView.j"
+
 
 var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
     AddToolbarItemIdentifier = "AddToolbarItemIdentifier",
     ViewMLItemIdentifier = "ViewMLItemIdentifier",
     MLPreferencesItemIdentifier = "MLPreferencesItemIdentifier",
     CategoryBrowserItemIdentifier = "CategoryBrowserItemIdentifier",
-    SaleToolbarItemIdentifier = "SaleToolbarItemIdentifier",
+    SearchToolbarItemIdentifier = "SearchToolbarItemIdentifier",
     UserInfoToolbarItemIdentifier = "UserInfoToolbarItemIdentifier",
     NAVIGATION_AREA_WIDTH = 200.0;
 
@@ -33,6 +35,17 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
 {
+    [[CPNotificationCenter defaultCenter ]
+        addObserver:self
+           selector:@selector(changeValue:)
+               name:@"ChangeValue"
+             object:nil];
+
+    [[CPNotificationCenter defaultCenter ]
+        addObserver:self
+           selector:@selector(sessionExpired:)
+               name:@"SessionExpired"
+             object:nil];
 
     apiController = [[MLAPIController alloc] init];
 
@@ -83,12 +96,25 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 //    console.log(data);
 
     //[CPMenu setMenuBarVisible:YES];
+}
 
-       [[CPNotificationCenter defaultCenter ]
-            addObserver:self
-               selector:@selector(changeValue:)
-                   name:@"ChangeValue"
-                 object:nil];
+- (void)sessionExpired:(CPNotification)aNotification
+{
+    console.log("sessionExpired", aNotification);
+
+    var alert = [CPAlert new];
+    [alert setMessageText:"Your Session expired!!"];
+    [alert setInformativeText:"Please, Login again to continue using ML.Store."];
+    [alert setDelegate:self];
+    //[alert setTheme:CPHUDBackgroundWindowMask];
+    [alert setAlertStyle:CPCriticalAlertStyle];
+
+    [alert runModal];
+}
+
+- (void)alertDidEnd:(CPAlert)anAlert returnCode:(CPInteger)returnCode
+{
+    window.open('login.html', '_self');
 }
 
 - (void)changeValue:(CPNotification)aNotification
@@ -99,7 +125,7 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
 // Return an array of toolbar item identifier (the default toolbar items that are present in the toolbar)
 - (CPArray)toolbarDefaultItemIdentifiers:(CPToolbar)aToolbar
 {
-   return [UserInfoToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, AddToolbarItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SaleToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, MLPreferencesItemIdentifier, SliderToolbarItemIdentifier];
+   return [UserInfoToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, AddToolbarItemIdentifier, ViewMLItemIdentifier, CategoryBrowserItemIdentifier, SearchToolbarItemIdentifier, CPToolbarFlexibleSpaceItemIdentifier, MLPreferencesItemIdentifier, SliderToolbarItemIdentifier];
 }
 
 - (CPToolbarItem)toolbar:(CPToolbar)aToolbar itemForItemIdentifier:(CPString)anItemIdentifier willBeInsertedIntoToolbar:(BOOL)aFlag
@@ -125,18 +151,18 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
         [toolbarItem setMinSize:CGSizeMake(180, 32)];
         [toolbarItem setMaxSize:CGSizeMake(180, 32)];
     }
-    else if (anItemIdentifier == SaleToolbarItemIdentifier)
+    else if (anItemIdentifier == SearchToolbarItemIdentifier)
     {
         var mainBundle = [CPBundle mainBundle];
-        var image = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"Sale-256-blue.png"] size:CPSizeMake(256, 256)];
-        var highlighted = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"Sale-256.png"] size:CPSizeMake(256, 256)];
+        var image = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"search.png"] size:CPSizeMake(128, 128)];
+        var highlighted = [[CPImage alloc] initWithContentsOfFile:[mainBundle pathForResource:@"search.png"] size:CPSizeMake(128, 128)];
 
         [toolbarItem setImage:image];
         [toolbarItem setAlternateImage:highlighted];
 
         [toolbarItem setTarget:self];
-        [toolbarItem setAction:@selector(sale:)];
-        [toolbarItem setLabel:"Sale!!"];
+        [toolbarItem setAction:@selector(showSearchView:)];
+        [toolbarItem setLabel:"Search"];
 
         [toolbarItem setMinSize:CGSizeMake(32, 32)];
         [toolbarItem setMaxSize:CGSizeMake(32, 32)];
@@ -274,6 +300,12 @@ var SliderToolbarItemIdentifier = "SliderToolbarItemIdentifier",
         [[[MLUserInfoView alloc] initWithUserInfo:userInfo] orderFront:nil];
     }];
 
+}
+
+
+- (void)showSearchView:(id)sender
+{
+    [[[MLSearchView alloc] init] orderFront:nil];
 }
 
 /**

@@ -37,17 +37,22 @@
 	var sharedApplication = [CPApplication sharedApplication];
 
 	var hash = [[sharedApplication arguments] firstObject],
-		args = [hash componentsSeparatedByString:"&"];
+        args = [hash componentsSeparatedByString:"&"];
 
-	[self setAccessToken:[args[0] componentsSeparatedByString:"="][1]];
-	[self setExpiresIn:[args[1] componentsSeparatedByString:"="][1]];
-	[self setUserId:[args[2] componentsSeparatedByString:"="][1]];
-	[self setDomains:[args[3] componentsSeparatedByString:"="][1]];
+    if (args != null)
+    {
+        [self setAccessToken:[args[0] componentsSeparatedByString:"="][1]];
+        [self setExpiresIn:[args[1] componentsSeparatedByString:"="][1]];
+        [self setUserId:[args[2] componentsSeparatedByString:"="][1]];
+        [self setDomains:[args[3] componentsSeparatedByString:"="][1]];
+        //TODO: Validate token!!!
+        //TODO: Save info in cokies
+        //
 
-	//TODO: Find it in CPCookie
-	//console.log(self);
-
-
+    }else
+    {
+        [[CPNotificationCenter defaultCenter] postNotificationName:@"SessionExpired" object:nil];
+    }
 }
 
 -(void)userInfo:(Function)aCallback

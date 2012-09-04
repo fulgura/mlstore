@@ -5,6 +5,8 @@
 @implementation MLUserInfoView : CPWindow
 {
 	MLUserInfo userInfo;
+    CPBox box;
+
 	CPArray items;
 }
 
@@ -24,7 +26,7 @@
         [self setTitle:"User Info"];
 
 
-	    var box = [[CPBox alloc] initWithFrame:CGRectMake(10, 10, CGRectGetWidth([contentView bounds]) - 20 , CGRectGetHeight([contentView bounds]) - 20)];
+	    box = [[CPBox alloc] initWithFrame:CGRectMake(10, 10, CGRectGetWidth([contentView bounds]) - 20 , CGRectGetHeight([contentView bounds]) - 20)];
 
 	    [box setBorderType:CPLineBorder];
 	    [box setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
@@ -53,10 +55,19 @@
 
 - (void)showDetails:(id)sender
 {
-	console.log(self);
+    var subview = [[CPView alloc] initWithFrame:[box bounds]];
+    [subview setBackgroundColor:[CPColor blueColor]];
+    console.log("showDetails", subview);
+    [box setSubviews:[subview]];
+
+
 }
 - (void)showSellerReputation:(id)sender
 {
+    var subview = [[CPView alloc] initWithFrame:[box bounds]];
+    [subview setBackgroundColor:[CPColor redColor]];
+    console.log("showSellerReputation", subview);
+    [box setSubviews:[subview]];
 }
 - (void)showBuyerReputation:(id)sender
 {
